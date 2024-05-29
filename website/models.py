@@ -1,9 +1,10 @@
 from django.db import models
 
 
+
 class Area(models.Model):
     id = models.AutoField(primary_key=True)
-    nomeArea = models.CharField(max_length=50, blank=False)
+    nomeArea = models.CharField(verbose_name= "Área", max_length=50, blank=False)
 
     class Meta:
         verbose_name_plural = "Areas"
@@ -14,8 +15,8 @@ class Area(models.Model):
 
 class SubArea(models.Model):
     id = models.AutoField(primary_key=True)
-    nomeSubArea = models.CharField(max_length=50, blank=False)
-    tipo = models.ForeignKey(Area, on_delete=models.CASCADE)
+    nomeSubArea = models.CharField(verbose_name= "Subárea", max_length=50, blank=False)
+    area = models.ForeignKey(Area, verbose_name= "Área", on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = "Subáreas"
@@ -50,11 +51,11 @@ class Pesquisador(models.Model):
     ]
 
     id = models.AutoField(primary_key=True)
-    nomePesq = models.CharField(max_length=50, blank=False)
-    cpf = models.CharField(name="CPF", max_length=11, blank=False, unique=True)
+    nomePesq = models.CharField(verbose_name="Nome do Pesquisador", max_length=50, blank=False)
+    cpf = models.CharField(verbose_name="CPF", max_length=11, blank=False, unique=True)
     email = models.EmailField()
-    formacao = models.IntegerField(name="Formação", choices=FORMACAO_CHOICES)
-    tipoPesquisador = models.IntegerField(name="Tipo de Pesquisador",default = 6, choices=TIPO_PESQ_CHOICES)
+    formacao = models.IntegerField(verbose_name="Formação", choices=FORMACAO_CHOICES)
+    tipoPesquisador = models.IntegerField(verbose_name="Tipo de Pesquisador",default = 6, choices=TIPO_PESQ_CHOICES)
 
     class Meta:
         verbose_name_plural = "Pesquisadores"
@@ -66,8 +67,8 @@ class Pesquisador(models.Model):
 class Instituicao(models.Model):
 
     id = models.AutoField(primary_key=True)
-    cnpj = models.CharField(name="CNPJ", max_length=14, blank=False, unique=True)
-    nomeInst = models.CharField(max_length=50, blank=False)
+    cnpj = models.CharField(verbose_name="CNPJ", max_length=14, blank=False, unique=True)
+    nomeInst = models.CharField(verbose_name="Instituição", max_length=50, blank=False)
 
     class Meta:
         verbose_name_plural = "Instituições"
@@ -79,7 +80,7 @@ class Instituicao(models.Model):
 class TipoProducao(models.Model):
 
     id = models.AutoField(primary_key=True)
-    tipoProd = models.CharField(max_length=20, blank=False)
+    tipoProd = models.CharField(verbose_name="Tipo de Produção", max_length=20, blank=False)
 
 
     class Meta:
@@ -92,8 +93,8 @@ class TipoProducao(models.Model):
 class Producao(models.Model):
 
     id = models.AutoField(primary_key=True)
-    tituloProd = models.CharField(max_length=100, blank=False)
-    tipo = models.ForeignKey(TipoProducao, on_delete=models.CASCADE)
+    tituloProd = models.CharField(verbose_name="Titulo da Produção", max_length=100, blank=False)
+    tipo = models.ForeignKey(TipoProducao, verbose_name="Tipo de Produção", on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = "Produções"
@@ -104,7 +105,7 @@ class Producao(models.Model):
 class Fomento(models.Model):
 
     id = models.AutoField(primary_key=True)
-    descricaoFom = models.TextField(max_length=300, blank=False)
+    descricaoFom = models.TextField(verbose_name="Descrição", max_length=300, blank=False)
 
     class Meta:
         verbose_name_plural = "Fomentos"
@@ -133,15 +134,15 @@ class Projeto(models.Model):
     ]
 
 
-    tituloProj = models.CharField(max_length=100, blank=False)
+    tituloProj = models.CharField(verbose_name="Titulo do Projeto", max_length=100, blank=False)
     dataInicio = models.DateField('Data de Inicio', blank=False)
     dataFinal = models.DateField('Data de Conclusão')
     fomento = models.ForeignKey(Fomento, on_delete=models.CASCADE)
-    area = models.ForeignKey(Area, on_delete=models.CASCADE)
-    subarea = models.ForeignKey(SubArea, on_delete=models.CASCADE)
-    producao = models.ForeignKey(Producao,name="Produção", on_delete=models.CASCADE)
-    resultado = models.TextField(name="Resultado", max_length=300, default= ' ', blank=False)
-    situacao = models.IntegerField(choices=SITUACAO_CHOICES, null=False)
+    area = models.ForeignKey(Area, verbose_name="Área", on_delete=models.CASCADE)
+    subarea = models.ForeignKey(SubArea, verbose_name="Subárea", on_delete=models.CASCADE)
+    producao = models.ForeignKey(Producao,verbose_name="Produção", on_delete=models.CASCADE)
+    resultado = models.TextField(verbose_name="Resultado", max_length=300, default= ' ', blank=False)
+    situacao = models.IntegerField(choices=SITUACAO_CHOICES,verbose_name="Situação", null=False)
 
     class Meta:
         verbose_name_plural = "Projetos"
