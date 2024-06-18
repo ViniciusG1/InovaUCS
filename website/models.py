@@ -53,6 +53,9 @@ class FormacaoAcademica(models.Model):
     ano_inicio = models.IntegerField()
     ano_conclusao = models.IntegerField()
 
+    class Meta:
+        verbose_name_plural = "Formações Acadêmicas"
+
     def __str__(self):
         return self.titulo
 
@@ -102,6 +105,8 @@ class Producao(models.Model):
     data_publicacao = models.DateField()
     descricao = models.TextField()
 
+    class Meta:
+        verbose_name_plural = "Produções"
+
     def __str__(self):
         return self.titulo
-    
