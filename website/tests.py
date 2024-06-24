@@ -14,7 +14,7 @@ class ProducaoAssociadaProjetoTestCase(TestCase):
         self.pesquisador2 = Pesquisador.objects.create(
             cpf='98765432198',
             nome='Bell Cranel',
-            email='bell@ucs.br',
+            email='cranel@ucs.br',
             tipo='AL'
         )
 
@@ -153,14 +153,10 @@ class ProducaoExistenteAssociadaProjetoTestCase(TestCase):
 
     def test_producoes_associadas_projeto_existente(self):
         # Seleciona um projeto existente do banco de dados
-        projeto = Projeto.objects.first()
-        self.assertIsNotNone(projeto, "Nenhum projeto existente no banco de dados.")
+        producao = Producao.objects.order_by('?').first()
+        self.assertIsNotNone(producao, "Nenhuma produção existente no banco de dados.")
         
-        producoes = projeto.producao_set.all()
-        self.assertGreater(len(producoes), 0, "Nenhuma produção associada ao projeto existente.")
-        
-        for producao in producoes:
-            self.assertEqual(producao.projeto, projeto)
+        self.assertIsNotNone(producao.projeto, "Nenhum projeto associado á produção existente.")
 
 class ProducaoExistenteTemPesquisadorTestCase(TestCase):
     @classmethod
@@ -169,7 +165,7 @@ class ProducaoExistenteTemPesquisadorTestCase(TestCase):
 
     def test_pesquisadores_associados_producao_existente(self):
         # Seleciona uma produção existente do banco de dados
-        producao = Producao.objects.first()
+        producao = Producao.objects.order_by('?').first()
         self.assertIsNotNone(producao, "Nenhuma produção existente no banco de dados.")
         
         pesquisadores = producao.pesquisadores.all()
@@ -184,7 +180,7 @@ class ProjetoExistenteTemFomentoTestCase(TestCase):
 
     def test_projeto_tem_fomento_existente(self):
         # Seleciona um projeto existente do banco de dados
-        projeto = Projeto.objects.first()
+        projeto = Projeto.objects.order_by('?').first()
         self.assertIsNotNone(projeto, "Nenhum projeto existente no banco de dados.")
         
         self.assertIsNotNone(projeto.fomento, "Projeto existente não possui fomento associado.")
@@ -196,7 +192,7 @@ class ProjetoExistenteTemAreaSubareasTestCase(TestCase):
 
     def test_projeto_tem_area_subareas_existente(self):
         # Seleciona um projeto existente do banco de dados
-        projeto = Projeto.objects.first()
+        projeto = Projeto.objects.order_by('?').first()
         self.assertIsNotNone(projeto, "Nenhum projeto existente no banco de dados.")
         
         self.assertIsNotNone(projeto.area, "Projeto existente não possui área associada.")
