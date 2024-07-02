@@ -1,151 +1,112 @@
 from django.db import models
 
-
-
-class Area(models.Model):
-    id = models.AutoField(primary_key=True)
-    nomeArea = models.CharField(verbose_name= "Área", max_length=50, blank=False)
-
-    class Meta:
-        verbose_name_plural = "Areas"
-
-    def __str__(self):
-        return self.nomeArea
-
-
-class SubArea(models.Model):
-    id = models.AutoField(primary_key=True)
-    nomeSubArea = models.CharField(verbose_name= "Subárea", max_length=50, blank=False)
-    area = models.ForeignKey(Area, verbose_name= "Área", on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name_plural = "Subáreas"
-
-    def __str__(self):
-        return self.nomeSubArea
-
+class TipoPesquisador(models.TextChoices):
+    ALUNO = 'AL', 'Aluno'
+    PROFESSOR = 'PR', 'Professor'
 
 class Pesquisador(models.Model):
-
-    GRADUACAO = 1
-    ESPECIALIZACAO = 2
-    MBA = 3
-    MESTRADO = 4
-    DOUTORADO = 5
-
-    FORMACAO_CHOICES = [
-        (GRADUACAO, 'Graduação'),
-        (ESPECIALIZACAO, 'Especialização'),
-        (MBA, 'MBA'),
-        (MESTRADO, 'Mestrado'),
-        (DOUTORADO, 'Doutorado'),
-    ]
-
-    ALUNO = 6
-    PROFESSOR = 7
-
-    TIPO_PESQ_CHOICES = [
-        (ALUNO, 'Aluno(a)'),
-        (PROFESSOR, 'Professor(a)'),
-
-    ]
-
-    id = models.AutoField(primary_key=True)
-    nomePesq = models.CharField(verbose_name="Nome do Pesquisador", max_length=50, blank=False)
     cpf = models.CharField(verbose_name="CPF", max_length=11, blank=False, unique=True)
+    nome = models.CharField(max_length=255, blank=False)
     email = models.EmailField()
-    formacao = models.IntegerField(verbose_name="Formação", choices=FORMACAO_CHOICES)
-    tipoPesquisador = models.IntegerField(verbose_name="Tipo de Pesquisador",default = 6, choices=TIPO_PESQ_CHOICES)
+    tipo = models.CharField(max_length=2, choices=TipoPesquisador.choices)
 
     class Meta:
         verbose_name_plural = "Pesquisadores"
 
     def __str__(self):
-        return self.nomePesq
+        return self.nome
 
+class Area(models.Model):
+    nome = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.nome
+
+class SubArea(models.Model):
+    nome = models.CharField(max_length=255)
+    area = models.ForeignKey(Area, related_name='subareas', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "Subáreas"
+
+    def __str__(self):
+        return self.nome
 
 class Instituicao(models.Model):
-
-    id = models.AutoField(primary_key=True)
     cnpj = models.CharField(verbose_name="CNPJ", max_length=14, blank=False, unique=True)
-    nomeInst = models.CharField(verbose_name="Instituição", max_length=50, blank=False)
+    nome = models.CharField(blank=False, max_length=255)
+    sigla = models.CharField(blank=False, max_length=12)
 
     class Meta:
         verbose_name_plural = "Instituições"
 
     def __str__(self):
-        return self.nomeInst
+        return self.nome
 
-
-class TipoProducao(models.Model):
-
-    id = models.AutoField(primary_key=True)
-    tipoProd = models.CharField(verbose_name="Tipo de Produção", max_length=20, blank=False)
-
+class FormacaoAcademica(models.Model):
+    pesquisador = models.ForeignKey(Pesquisador, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=255)
+    instituicao = models.ForeignKey(Instituicao, on_delete=models.CASCADE)
+    orientador = models.CharField(blank=True, null=True, max_length=255)
+    palavras_chave = models.TextField(blank=True, null=True)
+    area = models.ForeignKey(Area, on_delete=models.CASCADE)
+    ano_inicio = models.IntegerField()
+    ano_conclusao = models.IntegerField()
 
     class Meta:
-        verbose_name_plural = "Tipo de Produções"
+        verbose_name_plural = "Formações Acadêmicas"
 
     def __str__(self):
-        return self.tipoProd
+        return self.titulo
 
+class Fomento(models.Model):
+    codigo = models.AutoField(primary_key=True)
+    nome_agencia = models.CharField(blank=True, null=True, max_length=255)
+    sigla_agencia = models.CharField(blank=False, max_length=10)
+    valor_aportado = models.DecimalField(max_digits=10, decimal_places=2)
+    descricao = models.TextField()
+
+    def __str__(self):
+        return f"{self.codigo:04} - {self.sigla_agencia}"
+
+class TipoSituacao(models.TextChoices):
+    EM_ANDAMENTO = 'EA', 'Em Andamento'
+    FINALIZADO = 'FI', 'Finalizado'
+    AGUARDANDO_APROVACAO = 'AA', 'Aguardando Aprovação'
+    CANCELADO = 'CA', 'Cancelado'
+    SUSPENSO = 'SU', 'Suspenso'
+    OUTRO = 'OU', 'Outro'
+
+class Projeto(models.Model):
+    titulo = models.CharField(blank=False, max_length=255)
+    data_inicio = models.DateField()
+    data_conclusao = models.DateField(blank=True, null=True)
+    fomento = models.ForeignKey(Fomento, on_delete=models.CASCADE)
+    area = models.ForeignKey(Area, on_delete=models.CASCADE)
+    subareas = models.ManyToManyField(SubArea)
+    situacao = models.CharField(max_length=2, choices=TipoSituacao.choices)
+    pesquisadores = models.ManyToManyField(Pesquisador)
+
+    def __str__(self):
+        return self.titulo
+
+class TipoProducao(models.TextChoices):
+    PATENTE = 'PA', 'Patente'
+    ARTIGO = 'AR', 'Artigo'
+    LIVRO = 'LI', 'Livro'
+    RELATORIO = 'RE', 'Relatório'
+    OUTRO = 'OU', 'Outro'
 
 class Producao(models.Model):
-
-    id = models.AutoField(primary_key=True)
-    tituloProd = models.CharField(verbose_name="Titulo da Produção", max_length=100, blank=False)
-    tipo = models.ForeignKey(TipoProducao, verbose_name="Tipo de Produção", on_delete=models.CASCADE)
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE)
+    titulo = models.CharField(blank=False, max_length=255)
+    tipo_producao = models.CharField(max_length=2, choices=TipoProducao.choices)
+    pesquisadores = models.ManyToManyField(Pesquisador)
+    data_publicacao = models.DateField()
+    descricao = models.TextField()
 
     class Meta:
         verbose_name_plural = "Produções"
 
     def __str__(self):
-        return self.tituloProd
-
-class Fomento(models.Model):
-
-    id = models.AutoField(primary_key=True)
-    descricaoFom = models.TextField(verbose_name="Descrição", max_length=300, blank=False)
-
-    class Meta:
-        verbose_name_plural = "Fomentos"
-
-    def __str__(self):
-        return self.descricaoFom
-
-class Projeto(models.Model):
-
-    CONCLUIDO = 1
-    EM_DESENVOLVIMENTO = 2
-    PAUSADO = 3
-    CANCELADO = 4
-    EM_PLANEJAMENTO = 5
-    EM_REVISAO = 6
-    TESTES = 7
-
-    SITUACAO_CHOICES = [
-        (CONCLUIDO, 'Concluído'),
-        (EM_DESENVOLVIMENTO, 'Fase de Desenvolvimento'),
-        (PAUSADO, 'Pausado'),
-        (CANCELADO, 'Cancelado'),
-        (EM_PLANEJAMENTO, 'Fase de Planejamento'),
-        (EM_REVISAO, 'Fase de Revisão'),
-        (TESTES, 'Fase de Testes'),
-    ]
-
-
-    tituloProj = models.CharField(verbose_name="Titulo do Projeto", max_length=100, blank=False)
-    dataInicio = models.DateField('Data de Inicio', blank=False)
-    dataFinal = models.DateField('Data de Conclusão')
-    fomento = models.ForeignKey(Fomento, on_delete=models.CASCADE)
-    area = models.ForeignKey(Area, verbose_name="Área", on_delete=models.CASCADE)
-    subarea = models.ForeignKey(SubArea, verbose_name="Subárea", on_delete=models.CASCADE)
-    producao = models.ForeignKey(Producao,verbose_name="Produção", on_delete=models.CASCADE)
-    resultado = models.TextField(verbose_name="Resultado", max_length=300, default= ' ', blank=False)
-    situacao = models.IntegerField(choices=SITUACAO_CHOICES,verbose_name="Situação", null=False)
-
-    class Meta:
-        verbose_name_plural = "Projetos"
-
-    def __str__(self):
-        return self.tituloProj
+        return self.titulo
